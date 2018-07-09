@@ -1,0 +1,39 @@
+{
+    "variables": {
+        "nomad_release": "",
+        "digitalocean_token": ""
+    },
+    "builders": [
+        {
+            "type": "digitalocean",
+            "api_token": "{{ user `digitalocean_token` }}",
+            "ssh_username": "root",
+            "image": "ubuntu-18-04-x64",
+            "region": "lon1",
+            "size": "s-1vcpu-1gb",
+            "snapshot_name": "nomad-{{timestamp}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo apt-get -y update",
+                "sudo apt-get -y install unzip docker.io curl",
+                "curl -o /tmp/nomad.zip -L {{ user `nomad_release` }}",
+                "sudo unzip -d /usr/local/bin /tmp/nomad.zip",
+                "mkdir -p /usr/local/etc/nomad"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "upstart.nomad",
+            "destination": "/etc/init/nomad.conf"
+        },
+        {
+            "type": "file",
+            "source": "default.hcl",
+            "destination": "/usr/local/etc/nomad/nomad.hcl"
+        }
+    ]
+}
