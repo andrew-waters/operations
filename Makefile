@@ -1,6 +1,3 @@
-build:
-	packer build ./packer/statsite/packer.json
-
 build-nomad:
 	cd ./packer/nomad && packer build -var-file=../../environments/staging.json ./build.json
 
