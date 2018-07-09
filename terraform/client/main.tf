@@ -30,13 +30,14 @@ resource "digitalocean_droplet" "client" {
 
   provisioner "remote-exec" {
     inline = <<CMD
-cat > /usr/local/etc/nomad/client.hcl <<EOF
+mkdir /etc/nomad && cat > /etc/nomad/client.hcl <<EOF
 ${data.template_file.client_config.rendered}
 EOF
 CMD
   }
 
   provisioner "remote-exec" {
-    inline = "sudo start nomad || sudo restart nomad"
+    inline = "nohup nomad agent -client -config=/etc/nomad -config /var/lib/nomad"
   }
+
 }

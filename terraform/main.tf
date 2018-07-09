@@ -1,15 +1,16 @@
 variable "digitalocean_token" {}
+variable "base_image_name" {}
 
 provider "digitalocean" {
   token = "${var.digitalocean_token}"
 }
 
 data "digitalocean_image" "nomad" {
-  name = "nomad-1531151081"
+  name = "${var.base_image_name}"
 }
 
 resource "digitalocean_ssh_key" "root" {
-  name       = "Root access to machines"
+  name       = "nomad agent provisioner"
   public_key = "${file("./.ssh/id_rsa.pub")}"
 }
 

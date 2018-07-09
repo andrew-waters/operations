@@ -21,7 +21,8 @@ resource "digitalocean_droplet" "server" {
 
   provisioner "remote-exec" {
     inline = <<CMD
-cat > /usr/local/etc/nomad/server.hcl <<EOF
+mkdir /etc/nomad && cat > /etc/nomad/server.hcl <<EOF
+
 datacenter = "${var.region}"
 server {
     enabled = true
@@ -36,7 +37,7 @@ CMD
   }
 
   provisioner "remote-exec" {
-    inline = "sudo start nomad || sudo restart nomad"
+    inline = "nohup nomad agent -server -config=/etc/nomad -config /var/lib/nomad"
   }
 }
 
