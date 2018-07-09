@@ -21,6 +21,13 @@ resource "digitalocean_droplet" "client" {
   region   = "${var.region}"
   ssh_keys = ["${split(",", var.ssh_keys)}"]
 
+  connection {
+    type        = "ssh"
+    user        = "root"
+    private_key = "${file("./.ssh/id_rsa")}"
+    timeout     = "2m"
+  }
+
   provisioner "remote-exec" {
     inline = <<CMD
 cat > /usr/local/etc/nomad/client.hcl <<EOF
