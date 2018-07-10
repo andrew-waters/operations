@@ -24,16 +24,23 @@
             "type": "shell",
             "inline": [
                 "sudo apt-get -y update",
-                "sudo apt-get -y install unzip curl",
+                "sudo apt-get -y install unzip curl jq",
                 "curl -o /tmp/consul.zip -L https://releases.hashicorp.com/consul/{{ user `PACKER_IMAGES_CONSUL_RELEASE` }}/consul_{{ user `PACKER_IMAGES_CONSUL_RELEASE` }}_linux_amd64.zip",
                 "unzip -d /usr/bin /tmp/consul.zip",
-                "mkdir -p /var/lib/consul"
+                "mkdir -p /var/lib/consul",
+                "mkdir -p /etc/consul"
             ]
         },
         {
             "type": "file",
             "source": "consul.service",
             "destination": "/etc/systemd/system/consul.service"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "sudo systemctl enable consul.service"
+            ]
         }
     ]
 }

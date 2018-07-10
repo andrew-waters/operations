@@ -1,16 +1,19 @@
+variable "consul_ip" {}
 variable "count" {}
 variable "image" {}
+variable "pub_tag" {}
 variable "region" {}
-variable "size" { default = "s-1vcpu-1gb" }
+variable "size" {}
 variable "ssh_key" {}
 
 resource "digitalocean_droplet" "server" {
-  image    = "${var.image}"
-  name     = "nomad-server-${var.region}-${count.index}"
-  count    = "${var.count}"
-  size     = "${var.size}"
-  region   = "${var.region}"
-  ssh_keys = ["${var.ssh_key}"]
+  image              = "${var.image}"
+  name               = "nomad-server-${count.index}"
+  count              = "${var.count}"
+  size               = "${var.size}"
+  region             = "${var.region}"
+  ssh_keys           = ["${var.ssh_key}"]
+  tags               = ["${var.pub_tag}"]
   private_networking = true
 
   connection {
@@ -22,12 +25,17 @@ resource "digitalocean_droplet" "server" {
 
   provisioner "remote-exec" {
     inline = <<CMD
-mkdir /etc/nomad && cat > /etc/nomad/server.hcl <<EOF
+cat > /etc/nomad/server.hcl <<EOF
 
 datacenter = "${var.region}"
+data_dir = "/var/lib/nomad"
 server {
     enabled = true
     bootstrap_expect = ${var.count}
+}
+
+consul {
+  address = "${var.consul_ip}:8500"
 }
 EOF
 CMD
@@ -35,8 +43,7 @@ CMD
 
   provisioner "remote-exec" {
     inline = [
-      "nohup nomad agent -server -config=/etc/nomad -config /var/lib/nomad &",
-      "exit 0"
+      "sudo systemctl start nomad"
     ]
   }
 }

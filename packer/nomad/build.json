@@ -27,7 +27,8 @@
                 "sudo apt-get -y install unzip docker.io curl",
                 "curl -o /tmp/nomad.zip -L https://releases.hashicorp.com/nomad/{{ user `PACKER_IMAGES_NOMAD_RELEASE` }}/nomad_{{ user `PACKER_IMAGES_NOMAD_RELEASE` }}_linux_amd64.zip",
                 "unzip -d /usr/bin /tmp/nomad.zip",
-                "mkdir -p /var/lib/nomad"
+                "mkdir -p /var/lib/nomad",
+                "mkdir -p /etc/nomad"
             ]
         },
         {

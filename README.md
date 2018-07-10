@@ -12,6 +12,9 @@ Once your images are created, note the timestamp on the image name (eg `nomad-15
 
 Now you have the base image your servers will use you can run a `make plan` and make apply.
 
+### Connecting to servers
+
+`ssh -i ./terraform/.ssh/id_rsa root@SERVER_IP_ADDRESS`
 
 ## Images
 
@@ -20,9 +23,11 @@ Below is some information about how the machines images that are created should 
 ### Consul
 
 Data dir: `/var/lib/consul/`
+Config dir: `/etc/nomad`
 Logs: `/var/log/consul.log`
 
 ### Nomad
 
 Data dir: `/var/lib/nomad/`
+Data dir: `/etc/nomad`
 Logs: `/var/log/nomad.log`

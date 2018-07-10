@@ -1,7 +1,7 @@
 variable "count" {}
 variable "image" {}
 variable "region" {}
-variable "size" { default = "s-1vcpu-1gb" }
+variable "size" {}
 variable "servers" {}
 variable "ssh_key" {}
 
