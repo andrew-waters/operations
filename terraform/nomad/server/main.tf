@@ -27,8 +27,10 @@ resource "digitalocean_droplet" "server" {
     inline = <<CMD
 cat > /etc/nomad/server.hcl <<EOF
 
+name = "nomad-server-${count.index}"
 datacenter = "${var.region}"
 data_dir = "/var/lib/nomad"
+bind_addr = "${self.ipv4_address}"
 server {
     enabled = true
     bootstrap_expect = ${var.count}
@@ -46,8 +48,4 @@ CMD
       "sudo systemctl start nomad"
     ]
   }
-}
-
-output "addrs" {
-  value = "${join(",", digitalocean_droplet.server.*.ipv4_address)}"
 }

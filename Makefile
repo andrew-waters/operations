@@ -16,5 +16,5 @@ destroy:
 init:
 	cd ./terraform && terraform init -var-file=../environments/staging.json
 
-generate-keys:
+generate-key:
 	ssh-keygen -t rsa -b 4096 -P "" -C root@somewhere -f ./terraform/.ssh/id_rsa

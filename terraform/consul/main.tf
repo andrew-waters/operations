@@ -51,7 +51,7 @@ CMD
   provisioner "remote-exec" {
     inline = [
       "mv /etc/consul/main.json.tmp /etc/consul/main.json",
-      "sleep 5",
+      "sleep 10",
       "sudo systemctl start consul"
     ]
   }

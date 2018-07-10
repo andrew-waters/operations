@@ -1,3 +1,7 @@
+variable "DIGITALOCEAN_API_TOKEN" {}
+variable "PACKER_IMAGES_CONSUL_SNAPSHOT_NAME" {}
+variable "PACKER_IMAGES_NOMAD_SNAPSHOT_NAME" {}
+
 variable "CLUSTER_CONSUL_INSTANCE_COUNT" {}
 variable "CLUSTER_CONSUL_INSTANCE_REGION" {}
 variable "CLUSTER_CONSUL_INSTANCE_SIZE" {}
@@ -6,9 +10,9 @@ variable "CLUSTER_NOMAD_SERVER_INSTANCE_COUNT" {}
 variable "CLUSTER_NOMAD_SERVER_INSTANCE_REGION" {}
 variable "CLUSTER_NOMAD_SERVER_INSTANCE_SIZE" {}
 
-variable "DIGITALOCEAN_API_TOKEN" {}
-variable "PACKER_IMAGES_CONSUL_SNAPSHOT_NAME" {}
-variable "PACKER_IMAGES_NOMAD_SNAPSHOT_NAME" {}
+variable "CLUSTER_NOMAD_CLIENT_INSTANCE_COUNT" {}
+variable "CLUSTER_NOMAD_CLIENT_INSTANCE_REGION" {}
+variable "CLUSTER_NOMAD_CLIENT_INSTANCE_SIZE" {}
 
 provider "digitalocean" {
   token = "${var.DIGITALOCEAN_API_TOKEN}"
@@ -23,7 +27,7 @@ data "digitalocean_image" "consul" {
 }
 
 resource "digitalocean_ssh_key" "root" {
-  name       = "nomad agent provisioner"
+  name       = "terraform"
   public_key = "${file("./.ssh/id_rsa.pub")}"
 }
 
@@ -43,12 +47,16 @@ resource "digitalocean_firewall" "consul_ui" {
   inbound_rule = [
     {
       protocol           = "tcp"
+      port_range         = "22"
+      source_addresses   = ["0.0.0.0/0"]
+    },
+    {
+      protocol           = "tcp"
       port_range         = "8500"
       source_addresses   = ["0.0.0.0/0"]
-    }
+    },
   ]
 }
-
 
 module "consul" {
   source   = "./consul"
@@ -71,15 +79,12 @@ module "servers" {
   consul_ip = "${module.consul.first_consul_address}"
 }
 
-// module "clients" {
-//   source   = "./nomad/client"
-//   region   = "lon1"
-//   count    = 2
-//   image    = "${data.digitalocean_image.nomad.image}"
-//   servers  = "${module.servers.addrs}"
-//   ssh_key  = "${digitalocean_ssh_key.root.fingerprint}"
-// }
-
-// output "Nomad Servers" {
-//   value = "${join(" ", split(",", module.servers.addrs))}"
-// }
+module "clients" {
+  source   = "./nomad/client"
+  region    = "${var.CLUSTER_NOMAD_CLIENT_INSTANCE_REGION}"
+  size      = "${var.CLUSTER_NOMAD_CLIENT_INSTANCE_SIZE}"
+  count     = "${var.CLUSTER_NOMAD_CLIENT_INSTANCE_COUNT}"
+  image    = "${data.digitalocean_image.nomad.image}"
+  servers  = "${module.servers.nomad_server_addrs}"
+  ssh_key  = "${digitalocean_ssh_key.root.fingerprint}"
+}
