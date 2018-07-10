@@ -32,11 +32,6 @@
         },
         {
             "type": "file",
-            "source": "upstart.conf",
-            "destination": "/etc/init/nomad.conf"
-        },
-        {
-            "type": "file",
             "source": "nomad.service",
             "destination": "/etc/systemd/system/nomad.service"
         }

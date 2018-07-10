@@ -32,11 +32,6 @@
         },
         {
             "type": "file",
-            "source": "upstart.conf",
-            "destination": "/etc/init/consul.conf"
-        },
-        {
-            "type": "file",
             "source": "consul.service",
             "destination": "/etc/systemd/system/consul.service"
         }
