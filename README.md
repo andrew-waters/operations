@@ -6,8 +6,23 @@
 
 Copy `environments/example.json` to `environments/staging.json` and add your Digital Ocean API key.
 
-Run `make build-nomad` from the root of the repo. This will create a custom machine image that will be used when creating the cluster. It's based on Ubuntu 18.04 with nomad and docker installed.
+Run `make build-consul` && `make build-nomad` from the root of the repo. This will create the custom machine images that will be used when creating the cluster and store them on DO.
 
-Once your snaphot is completed, note the timestamp on the image name (eg `nomad-1531167685`) and add it to the `staging.json` file.
+Once your images are created, note the timestamp on the image name (eg `nomad-1531167685`) and add it to the `staging.json` file.
 
 Now you have the base image your servers will use you can run a `make plan` and make apply.
+
+
+## Images
+
+Below is some information about how the machines images that are created should be used when applying via terraform.
+
+### Consul
+
+Data dir: `/var/lib/consul/`
+Logs: `/var/log/consul.log`
+
+### Nomad
+
+Data dir: `/var/lib/nomad/`
+Logs: `/var/log/nomad.log`

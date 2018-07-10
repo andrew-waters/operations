@@ -1,17 +1,22 @@
 {
     "variables": {
-        "nomad_release": "",
-        "digitalocean_token": ""
+        "DIGITALOCEAN_API_TOKEN": "",
+        "PACKER_IMAGES_NOMAD_BASE_IMAGE": "",
+        "PACKER_IMAGES_NOMAD_BUILD_SIZE": "",
+        "PACKER_IMAGES_NOMAD_REGION": "",
+        "PACKER_IMAGES_NOMAD_RELEASE": "",
+        "PACKER_IMAGES_NOMAD_SNAPSHOT_NAME": "",
+        "PACKER_IMAGES_NOMAD_SSH_USERNAME": ""
     },
     "builders": [
         {
             "type": "digitalocean",
-            "api_token": "{{ user `digitalocean_token` }}",
-            "ssh_username": "root",
-            "image": "ubuntu-18-04-x64",
-            "region": "lon1",
-            "size": "s-1vcpu-1gb",
-            "snapshot_name": "nomad-{{timestamp}}"
+            "api_token": "{{ user `DIGITALOCEAN_API_TOKEN` }}",
+            "ssh_username": "{{ user `PACKER_IMAGES_NOMAD_SSH_USERNAME` }}",
+            "image": "{{ user `PACKER_IMAGES_NOMAD_BASE_IMAGE` }}",
+            "region": "{{ user `PACKER_IMAGES_NOMAD_REGION` }}",
+            "size": "{{ user `PACKER_IMAGES_NOMAD_BUILD_SIZE` }}",
+            "snapshot_name": "{{ user `PACKER_IMAGES_NOMAD_SNAPSHOT_NAME` }}"
         }
     ],
     "provisioners": [
@@ -20,8 +25,8 @@
             "inline": [
                 "sudo apt-get -y update",
                 "sudo apt-get -y install unzip docker.io curl",
-                "curl -o /tmp/nomad.zip -L {{ user `nomad_release` }}",
-                "sudo unzip -d /usr/bin /tmp/nomad.zip",
+                "curl -o /tmp/nomad.zip -L https://releases.hashicorp.com/nomad/{{ user `PACKER_IMAGES_NOMAD_RELEASE` }}/nomad_{{ user `PACKER_IMAGES_NOMAD_RELEASE` }}_linux_amd64.zip",
+                "unzip -d /usr/bin /tmp/nomad.zip",
                 "mkdir -p /var/lib/nomad"
             ]
         },
@@ -34,11 +39,6 @@
             "type": "file",
             "source": "nomad.service",
             "destination": "/etc/systemd/system/nomad.service"
-        },
-        {
-            "type": "file",
-            "source": "default.hcl",
-            "destination": "/var/lib/nomad/nomad.hcl"
         }
     ]
 }

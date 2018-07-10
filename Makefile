@@ -1,6 +1,9 @@
 build-nomad:
 	cd ./packer/nomad && packer build -var-file=../../environments/staging.json ./build.json
 
+build-consul:
+	cd ./packer/consul && packer build -var-file=../../environments/staging.json ./build.json
+
 plan:
 	cd ./terraform && terraform plan -var-file=../environments/staging.json -out ./plan
 

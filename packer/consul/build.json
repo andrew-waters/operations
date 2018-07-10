@@ -1,0 +1,44 @@
+{
+    "variables": {
+        "DIGITALOCEAN_API_TOKEN": "",
+        "PACKER_IMAGES_CONSUL_BASE_IMAGE": "",
+        "PACKER_IMAGES_CONSUL_BUILD_SIZE": "",
+        "PACKER_IMAGES_CONSUL_REGION": "",
+        "PACKER_IMAGES_CONSUL_RELEASE": "",
+        "PACKER_IMAGES_CONSUL_SNAPSHOT_NAME": "",
+        "PACKER_IMAGES_CONSUL_SSH_USERNAME": ""
+    },
+    "builders": [
+        {
+            "type": "digitalocean",
+            "api_token": "{{ user `DIGITALOCEAN_API_TOKEN` }}",
+            "ssh_username": "{{ user `PACKER_IMAGES_CONSUL_SSH_USERNAME` }}",
+            "image": "{{ user `PACKER_IMAGES_CONSUL_BASE_IMAGE` }}",
+            "region": "{{ user `PACKER_IMAGES_CONSUL_REGION` }}",
+            "size": "{{ user `PACKER_IMAGES_CONSUL_BUILD_SIZE` }}",
+            "snapshot_name": "{{ user `PACKER_IMAGES_CONSUL_SNAPSHOT_NAME` }}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo apt-get -y update",
+                "sudo apt-get -y install unzip curl",
+                "curl -o /tmp/consul.zip -L https://releases.hashicorp.com/consul/{{ user `PACKER_IMAGES_CONSUL_RELEASE` }}/consul_{{ user `PACKER_IMAGES_CONSUL_RELEASE` }}_linux_amd64.zip",
+                "unzip -d /usr/bin /tmp/consul.zip",
+                "mkdir -p /var/lib/consul"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "upstart.conf",
+            "destination": "/etc/init/consul.conf"
+        },
+        {
+            "type": "file",
+            "source": "consul.service",
+            "destination": "/etc/systemd/system/consul.service"
+        }
+    ]
+}
