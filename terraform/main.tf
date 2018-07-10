@@ -1,4 +1,6 @@
 variable "digitalocean_token" {}
+variable "consul_num_instances" {}
+variable "consul_base_image" {}
 variable "base_image_name" {}
 
 provider "digitalocean" {
@@ -14,21 +16,30 @@ resource "digitalocean_ssh_key" "root" {
   public_key = "${file("./.ssh/id_rsa.pub")}"
 }
 
-module "servers" {
-  source   = "./server"
+module "consul" {
+  source   = "./consul"
   region   = "lon1"
-  count    = 2
+  size     = "s-1vcpu-1gb"
+  image    = "${var.consul_base_image}"
+  count    = "${var.consul_num_instances}"
+  ssh_key  = "${digitalocean_ssh_key.root.fingerprint}"
+}
+
+module "servers" {
+  source   = "./nomad/server"
+  region   = "lon1"
+  count    = 3
   image    = "${data.digitalocean_image.nomad.image}"
-  ssh_keys = "${digitalocean_ssh_key.root.fingerprint}"
+  ssh_key  = "${digitalocean_ssh_key.root.fingerprint}"
 }
 
 module "clients" {
-  source   = "./client"
+  source   = "./nomad/client"
   region   = "lon1"
   count    = 2
   image    = "${data.digitalocean_image.nomad.image}"
   servers  = "${module.servers.addrs}"
-  ssh_keys = "${digitalocean_ssh_key.root.fingerprint}"
+  ssh_key  = "${digitalocean_ssh_key.root.fingerprint}"
 }
 
 output "Nomad Servers" {

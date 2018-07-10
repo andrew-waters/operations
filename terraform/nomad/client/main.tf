@@ -3,7 +3,7 @@ variable "image" {}
 variable "region" {}
 variable "size" { default = "s-1vcpu-1gb" }
 variable "servers" {}
-variable "ssh_keys" {}
+variable "ssh_key" {}
 
 data "template_file" "client_config" {
   template = "${path.module}/client.hcl.tpl"
@@ -19,7 +19,7 @@ resource "digitalocean_droplet" "client" {
   count    = "${var.count}"
   size     = "${var.size}"
   region   = "${var.region}"
-  ssh_keys = ["${split(",", var.ssh_keys)}"]
+  ssh_keys = ["${var.ssh_key}"]
 
   connection {
     type        = "ssh"
@@ -37,7 +37,10 @@ CMD
   }
 
   provisioner "remote-exec" {
-    inline = "nohup nomad agent -client -config=/etc/nomad -config /var/lib/nomad"
+    inline = [
+      "nohup nomad agent -client -config=/etc/nomad -config /var/lib/nomad &",
+      "exit 0"
+    ]
   }
 
 }
